@@ -9,7 +9,9 @@ export class CategoryController {
     constructor(
         private categoryService: CategoryService,
         private logger: Logger,
-    ) {}
+    ) {
+        this.create = this.create.bind(this);
+    }
 
     async create(req: Request, res: Response, next: NextFunction) {
         const result = validationResult(req);
@@ -17,22 +19,41 @@ export class CategoryController {
             return next(createHttpError(400, result.array()[0].msg as string));
         }
 
-        const { name, priceConfiguration, attributes } = req.body as Category;
+        try {
+            const { name, priceConfiguration, attributes } =
+                req.body as Category;
+            this.logger.debug("Creating category", {
+                name,
+                priceConfiguration,
+                attributes,
+            });
 
-        const category = await this.categoryService.create({
-            name,
-            priceConfiguration,
-            attributes,
-        });
+            const category = await this.categoryService.create({
+                name,
+                priceConfiguration,
+                attributes,
+            });
 
-        this.logger.info("Created category", {
-            id: category._id,
-        });
+            if (!category) {
+                return next(createHttpError(500, "Failed to create category"));
+            }
 
-        res.status(201).json({
-            success: true,
-            message: "Category Created!",
-            category,
-        });
+            this.logger.info("Created category", {
+                id: category._id,
+            });
+
+            res.status(201).json({
+                success: true,
+                message: "Category Created!",
+                category,
+            });
+        } catch (error) {
+            if (error instanceof Error) {
+                this.logger.error("Error creating category", {
+                    error,
+                });
+            }
+            next(createHttpError(500, "Internal Server Error"));
+        }
     }
 }
