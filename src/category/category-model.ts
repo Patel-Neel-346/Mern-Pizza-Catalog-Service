@@ -5,7 +5,7 @@ const priceConfigurationSchema = new mongoose.Schema<priceConfiguration>(
     {
         priceType: {
             type: String,
-            enum: ["base", "additional"],
+            enum: ["base", "aditional"],
             required: true,
         },
 
