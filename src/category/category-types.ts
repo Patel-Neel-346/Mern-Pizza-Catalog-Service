@@ -27,6 +27,7 @@ export interface Category {
 //             priceType: "base", // lowercase
 //             availableOptions: ["abc", "ced"], // correct spelling
 //         },
+
 //     },
 //     attributes: [
 //         {
