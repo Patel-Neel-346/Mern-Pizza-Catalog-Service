@@ -7,6 +7,7 @@ import { asyncWrapper } from "../common/utils/wrapper";
 import authenticate from "../common/middlewares/authenticate";
 import { CanAccess } from "../common/middlewares/canAccess";
 import { Roles } from "../common/constants";
+import categoryUpdateValidator from "./category-update-validator";
 
 const router = express.Router();
 
@@ -15,6 +16,7 @@ const router = express.Router();
 const categoryService = new CategoryService();
 const categoryController = new CategoryController(categoryService, logger);
 
+//create category
 router.post(
     "/",
     authenticate,
@@ -24,4 +26,19 @@ router.post(
     // (req: Request, res: Response, next: NextFunction) =>
     //     categoryController.create(req, res, next),
 );
+
+//update category
+router.patch(
+    "/:id",
+    authenticate,
+    CanAccess([Roles.ADMIN]),
+    categoryUpdateValidator,
+);
+
+//get all Category
+router.get("/", asyncWrapper(categoryController.index));
+
+//get catergory by id
+
+router.get("/:categoryId");
 export default router;

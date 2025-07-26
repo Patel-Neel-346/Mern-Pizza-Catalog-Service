@@ -11,8 +11,10 @@ export class CategoryController {
         private logger: Logger,
     ) {
         this.create = this.create.bind(this);
+        this.index = this.index.bind(this);
     }
 
+    //create category controller
     async create(req: Request, res: Response, next: NextFunction) {
         const result = validationResult(req);
         if (!result.isEmpty()) {
@@ -55,5 +57,13 @@ export class CategoryController {
             }
             next(createHttpError(500, "Internal Server Error"));
         }
+    }
+
+    //get All Category controlelr
+
+    async index(req: Request, res: Response, next: NextFunction) {
+        const categories = await this.categoryService.getAll();
+        this.logger.info("gettng categories list");
+        res.json(categories);
     }
 }
