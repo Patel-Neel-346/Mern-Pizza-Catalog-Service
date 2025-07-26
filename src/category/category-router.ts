@@ -40,5 +40,5 @@ router.get("/", asyncWrapper(categoryController.index));
 
 //get catergory by id
 
-router.get("/:categoryId");
+router.get("/:categoryId", asyncWrapper(categoryController.getOne));
 export default router;
