@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { validationResult } from "express-validator";
 import createHttpError from "http-errors";
-import { Category } from "./category-types";
+import { Category, priceConfiguration } from "./category-types";
 import { CategoryService } from "./category-service";
 import { Logger } from "winston";
 
@@ -13,6 +13,7 @@ export class CategoryController {
         this.create = this.create.bind(this);
         this.index = this.index.bind(this);
         this.getOne = this.getOne.bind(this);
+        this.update = this.update.bind(this);
     }
 
     //create category controller
@@ -60,6 +61,56 @@ export class CategoryController {
         }
     }
 
+    //update Category
+
+    async update(req: Request, res: Response, next: NextFunction) {
+        const result = validationResult(req);
+
+        if (!result.isEmpty()) {
+            return next(createHttpError(400, result.array()[0].msg as string));
+        }
+
+        const categoryId = req.params.id;
+
+        const updateData = req.body as Partial<Category>;
+
+        //check if category exits
+        const existingCategory = await this.categoryService.getOne(categoryId);
+
+        if (!existingCategory) {
+            return next(createHttpError(404, "Category not found!"));
+        }
+
+        if (updateData.priceConfiguration) {
+            const existingConfig =
+                existingCategory.priceConfiguration instanceof Map
+                    ? Object.fromEntries(existingCategory.priceConfiguration)
+                    : existingCategory.priceConfiguration;
+
+            //merge configurations
+
+            const mergedConfiguration: priceConfiguration = {
+                ...existingConfig,
+                ...updateData.priceConfiguration,
+            };
+
+            updateData.priceConfiguration = mergedConfiguration;
+        }
+
+        const updatedCategory = await this.categoryService.update(
+            categoryId,
+            updateData,
+        );
+
+        this.logger.info("Updated Category", {
+            id: categoryId,
+        });
+
+        res.json({
+            id: updatedCategory?._id,
+        });
+    }
+
     //get All Category controlelr
 
     async index(req: Request, res: Response, next: NextFunction) {
@@ -67,7 +118,7 @@ export class CategoryController {
         this.logger.info("gettng categories list");
         res.json(categories);
     }
-
+    //get One Category
     async getOne(req: Request, res: Response, next: NextFunction) {
         const { categoryId } = req.params;
 

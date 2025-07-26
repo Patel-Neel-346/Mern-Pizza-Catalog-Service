@@ -33,6 +33,7 @@ router.patch(
     authenticate,
     CanAccess([Roles.ADMIN]),
     categoryUpdateValidator,
+    asyncWrapper(categoryController.update),
 );
 
 //get all Category
