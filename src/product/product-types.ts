@@ -1,3 +1,4 @@
+import { Request } from "express-jwt";
 import mongoose, { Document, Types } from "mongoose";
 // import { priceConfiguration } from "../category/category-types";
 
@@ -25,4 +26,8 @@ export interface Product extends Document {
     tenantId?: string;
     categoryId?: Types.ObjectId;
     isPublish?: boolean;
+}
+
+export interface ProductRequest extends Request {
+    body: Product;
 }

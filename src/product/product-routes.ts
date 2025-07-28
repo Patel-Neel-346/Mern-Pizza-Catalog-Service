@@ -7,6 +7,7 @@ import { ProductService } from "./product-service";
 import { ProductController } from "./product-controller";
 import logger from "../config/logger";
 import { asyncWrapper } from "../common/utils/wrapper";
+import fileUpload from "express-fileupload";
 
 //class instances
 
@@ -20,6 +21,7 @@ router.post(
     "/",
     authenticate,
     CanAccess([Roles.ADMIN, Roles.MANAGER]),
+    fileUpload(),
     productValidator,
     asyncWrapper(productController.create),
 );
