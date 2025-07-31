@@ -11,6 +11,7 @@ export interface AuthPayload extends JwtPayload {
     firstName?: string;
     lastName?: string;
     email?: string;
+    tenant?: string;
 }
 
 export interface AuthRequest extends Request {
