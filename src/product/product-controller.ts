@@ -5,11 +5,15 @@ import { NextFunction, Response } from "express";
 import { validationResult } from "express-validator";
 import createHttpError from "http-errors";
 import { Product, ProductRequest } from "./product-types";
-
+import { FileStorage } from "../common/types/storage";
+import { v4 as uuidv4 } from "uuid";
+import { UploadedFile } from "express-fileupload";
+import { commonParams } from "@aws-sdk/client-s3/dist-types/endpoint/EndpointParameters";
 export class ProductController {
     constructor(
         private productService: ProductService,
         private logger: Logger,
+        private storage: FileStorage,
     ) {
         this.create = this.create.bind(this);
     }
@@ -24,7 +28,18 @@ export class ProductController {
         console.log(req.body);
 
         //algo
-        //image upload
+        //image upload\
+
+        const image = req.files!.image as UploadedFile;
+
+        const imageName = uuidv4();
+
+        const respones = await this.storage.upload({
+            filename: imageName,
+            fileData: image.data.buffer,
+        });
+
+        console.log(respones);
 
         const {
             name,
@@ -34,7 +49,7 @@ export class ProductController {
             tenantId,
             categoryId,
             isPublish,
-            image,
+            // image,
         } = req.body;
 
         const product = {
@@ -49,7 +64,7 @@ export class ProductController {
             tenantId,
             categoryId,
             isPublish,
-            image,
+            image: imageName,
         };
 
         console.log(product);
